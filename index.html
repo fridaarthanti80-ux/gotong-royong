@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Gotong Royong Bersama Riri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: radial-gradient(circle, #e0f2fe 0%, #bae6fd 100%);
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-kids {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Custom bounce animation for mascot */
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.02); }
+        }
+        .animate-mascot {
+            animation: gentle-bounce 3s ease-in-out infinite;
+        }
+        /* Floating clouds background */
+        @keyframes float-cloud {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100vw); }
+        }
+        .cloud-1 { animation: float-cloud 45s linear infinite; }
+        .cloud-2 { animation: float-cloud 60s linear infinite; }
+        
+        /* Interactive items shaking */
+        @keyframes soft-shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        .shake-hover:hover {
+            animation: soft-shake 0.5s ease-in-out infinite;
+        }
+        /* Custom Scrollbar for cute UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #bae6fd;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative selection:bg-amber-200">
+
+    <div class="absolute top-10 left-0 cloud-1 opacity-20 pointer-events-none z-0">
+        <i class="fa-solid fa-cloud text-white text-7xl"></i>
+    </div>
+    <div class="absolute top-32 left-0 cloud-2 opacity-30 pointer-events-none z-0">
+        <i class="fa-solid fa-cloud text-white text-9xl"></i>
+    </div>
+
+    <!-- MAIN INTERACTIVE CONTAINER -->
+    <main class="flex-grow flex items-center justify-center p-4 z-10">
+        <div class="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-[32px] shadow-2xl border-4 border-sky-400 p-6 md:p-8 flex flex-col justify-between min-h-[580px] relative overflow-hidden">
+            
+            <div class="flex items-center justify-between border-b-2 border-sky-100 pb-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <button onclick="changeSection('menu')" class="bg-amber-400 p-2.5 rounded-2xl shadow-md hover:bg-amber-500 transition-all active:scale-95" title="Ke Menu Utama">
+                        <i class="fa-solid fa-house text-white text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold text-sky-700 tracking-wide">Gotong Royong</h1>
+                        <p id="sub-title" class="text-xs text-sky-500 font-semibold">Kelas 1 SD • Pembelajaran Seru</p>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="flex items-center gap-2">
+                    <button id="btn-sound-toggle" onclick="toggleMute()" class="w-10 h-10 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-600 flex items-center justify-center transition-all shadow-sm active:scale-95" title="Suara Narasi">
+                        <i id="sound-icon" class="fa-solid fa-volume-high text-lg"></i>
+                    </button>
+                    <button onclick="showHelp()" class="w-10 h-10 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-600 flex items-center justify-center transition-all shadow-sm active:scale-95" title="Bantuan">
+                        <i class="fa-solid fa-question text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MAIN SCREEN DISPLAY AREA -->
+            <div id="screen-container" class="flex-grow flex flex-col justify-center">
+                <!-- Screens will be injected dynamically here by javascript -->
+            </div>
+
+            <!-- NAVIGATION / PROGRESS FOOTER (Controlled dynamically per section) -->
+            <div id="navigation-footer" class="mt-6 pt-4 border-t-2 border-sky-100 flex items-center justify-between hidden">
+                <button id="btn-back" onclick="goBack()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-2 text-sm md:text-base">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <div class="flex-grow flex justify-center gap-1.5 px-4" id="progress-dots">
+                    <!-- Progress steps dot indicators -->
+                </div>
+                <button id="btn-next" onclick="goNext()" class="px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-white font-bold rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-2 text-sm md:text-base">
+                    Lanjut <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER LICENSE / BRAND -->
+    <footer class="text-center py-4 text-sky-600/70 font-semibold text-xs z-10">
+        &copy; 2026 Media Pembelajaran Interaktif Gotong Royong • SD Kelas 1
+    </footer>
+
+    <!-- POPUP MODALS -->
+    <!-- Helper Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full border-4 border-amber-400 text-center shadow-2xl transform scale-95 transition-all">
+            <div class="text-amber-500 text-5xl mb-3"><i class="fa-solid fa-circle-info animate-bounce"></i></div>
+            <h3 class="text-2xl font-bold text-slate-800 mb-2">Petunjuk Belajar</h3>
+            <p class="text-slate-600 text-sm mb-4 leading-relaxed">Hai adik-adik! Klik tombol <b class="text-emerald-600">Suara Narasi <i class="fa-solid fa-volume-high"></i></b> untuk mendengarkan Kak Riri berbicara. Sentuh tombol menu dan ikuti instruksi serunya!</p>
+            <button onclick="closeHelp()" class="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition-all">Siap, Kak!</button>
+        </div>
+    </div>
+
+    <!-- Notification Message Modal (Instead of Alert) -->
+    <div id="toast-modal" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-slate-900/90 backdrop-blur text-white px-5 py-3 rounded-2xl shadow-xl border border-white/20 transition-all transform translate-y-[-100px] opacity-0 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-bell text-amber-400"></i>
+        <span id="toast-text" class="font-bold text-sm"></span>
+    </div>
+
+    <script>
+        // Cute Synthesizer sounds for Kids (Using Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSynthSound(type) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'success') {
+                    // Upbeat arpeggio
+                    const now = audioCtx.currentTime;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(261.63, now); // C4
+                    osc.frequency.setValueAtTime(329.63, now + 0.1); // E4
+                    osc.frequency.setValueAtTime(392.00, now + 0.2); // G4
+                    osc.frequency.setValueAtTime(523.25, now + 0.3); // C5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    // Sad buzzing sound
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'pop') {
+                    // Quick bubble pop sound
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'sweep') {
+                    // Swoosh / sweep sound
+                    const now = audioCtx.currentTime;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'water') {
+                    // Water bubbling effect
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.setValueAtTime(600, now + 0.05);
+                    osc.frequency.setValueAtTime(550, now + 0.1);
+                    osc.frequency.setValueAtTime(700, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.log("Audio Context issue", e);
+            }
+        }
+
+        // WAV Helper function for Gemini TTS
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcm16, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcm16.length * 2);
+            const view = new DataView(buffer);
+
+            // RIFF identifier
+            view.setUint32(0, 0x52494646, false); // "RIFF"
+            // file length minus RIFF identifier length and file description length
+            view.setUint32(4, 36 + pcm16.length * 2, true);
+            // RIFF type
+            view.setUint32(8, 0x57415645, false); // "WAVE"
+            // format chunk identifier
+            view.setUint32(12, 0x666d7420, false); // "fmt "
+            // format chunk length
+            view.setUint32(16, 16, true);
+            // sample format (raw)
+            view.setUint16(20, 1, true);
+            // channel count
+            view.setUint16(22, 1, true);
+            // sample rate
+            view.setUint32(24, sampleRate, true);
+            // byte rate (sample rate * block align)
+            view.setUint32(28, sampleRate * 2, true);
+            // block align (channel count * bytes per sample)
+            view.setUint16(32, 2, true);
+            // bits per sample
+            view.setUint16(34, 16, true);
+            // data chunk identifier
+            view.setUint32(36, 0x64617461, false); // "data"
+            // data chunk length
+            view.setUint32(40, pcm16.length * 2, true);
+
+            // write PCM data
+            for (let i = 0; i < pcm16.length; i++) {
+                view.setInt16(44 + i * 2, pcm16[i], true);
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        // Global TTS player variables
+        let isMuted = false;
+        let currentUtterance = null;
+        let activeAudioElement = null;
+
+        // Custom notification system
+        function showToast(text, type = "info") {
+            const toast = document.getElementById("toast-modal");
+            const icon = document.getElementById("toast-icon");
+            const txt = document.getElementById("toast-text");
+            
+            txt.innerText = text;
+            if (type === "success") {
+                icon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else if (type === "error") {
+                icon.className = "fa-solid fa-triangle-exclamation text-rose-400";
+            } else {
+                icon.className = "fa-solid fa-lightbulb text-amber-400";
+            }
+
+            toast.style.transform = "translateY(0)";
+            toast.style.opacity = "1";
+            
+            setTimeout(() => {
+                toast.style.transform = "translateY(-100px)";
+                toast.style.opacity = "0";
+            }, 3000);
+        }
+
+        // Narration Handler using Gemini 2.5 TTS with local WebSpeech Fallback
+        async function playNarration(text) {
+            if (isMuted) return;
+            stopNarration();
+
+            // Try Gemini TTS first
+            try {
+                const systemCommand = `Katakan dengan nada riang gembira seperti guru TK/SD ramah yang mengajar anak berumur 6 tahun: ${text}`;
+                const payload = {
+                    contents: [{
+                        parts: [{ text: systemCommand }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: "Sadachbia" } // Bright, Knowledgeable, Lively voice
+                            }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+
+                const apiKey = ""; // Canvas Injector handles authorization key automatically
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("Gemini TTS Network issue, falling back");
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    activeAudioElement = new Audio(audioUrl);
+                    activeAudioElement.play();
+                    return;
+                }
+            } catch (e) {
+                console.log("Using WebSpeech synthesis fallback...", e);
+            }
+
+            // Fallback: Web Speech Synthesis API
+            if ('speechSynthesis' in window) {
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.lang = 'id-ID';
+                currentUtterance.rate = 0.9; // Slightly slower for kids
+                currentUtterance.pitch = 1.3; // Higher, friendlier tone
+                window.speechSynthesis.speak(currentUtterance);
+            }
+        }
+
+        function stopNarration() {
+            if (activeAudioElement) {
+                activeAudioElement.pause();
+                activeAudioElement = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const icon = document.getElementById("sound-icon");
+            const btn = document.getElementById("btn-sound-toggle");
+            if (isMuted) {
+                stopNarration();
+                icon.className = "fa-solid fa-volume-xmark text-lg";
+                btn.className = "w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center transition-all shadow-sm";
+                showToast("Suara Narasi Dimatikan");
+            } else {
+                icon.className = "fa-solid fa-volume-high text-lg";
+                btn.className = "w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center transition-all shadow-sm";
+                showToast("Suara Narasi Dihidupkan");
+                narrateCurrentScreen();
+            }
+            playSynthSound('pop');
+        }
+    </script>
+
+    <script>
+        // Mascot SVG rabbit Riri component
+        const mascotSVG = `
+        <svg class="w-28 h-28 md:w-36 md:h-36 animate-mascot mx-auto" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ears -->
+            <path d="M70,80 C50,20 80,10 85,80" fill="#fbcfe8" stroke="#db2777" stroke-width="4" />
+            <path d="M75,80 C60,35 80,25 83,80" fill="#f472b6" />
+            
+            <path d="M130,80 C150,20 120,10 115,80" fill="#fbcfe8" stroke="#db2777" stroke-width="4" />
+            <path d="M125,80 C140,35 120,25 117,80" fill="#f472b6" />
+            
+            <!-- Body -->
+            <ellipse cx="100" cy="150" rx="45" ry="35" fill="#f0f9ff" stroke="#38bdf8" stroke-width="4" />
+            <!-- Shirt / Apron -->
+            <path d="M70,160 Q100,135 130,160 Q100,185 70,160 Z" fill="#fbbf24" stroke="#d97706" stroke-width="2" />
+            
+            <!-- Head -->
+            <circle cx="100" cy="110" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+            
+            <!-- Cheeks -->
+            <circle cx="75" cy="120" r="8" fill="#fecdd3" />
+            <circle cx="125" cy="120" r="8" fill="#fecdd3" />
+            
+            <!-- Eyes -->
+            <circle cx="85" cy="105" r="5" fill="#0f172a" />
+            <circle cx="115" cy="105" r="5" fill="#0f172a" />
+            <!-- Eye Highlights -->
+            <circle cx="83" cy="103" r="1.5" fill="#ffffff" />
+            <circle cx="113" cy="103" r="1.5" fill="#ffffff" />
+            
+            <!-- Nose and mouth -->
+            <polygon points="100,113 96,110 104,110" fill="#e11d48" />
+            <path d="M96,117 Q100,121 104,117" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" />
+            
+            <!-- Hands -->
+            <circle cx="55" cy="140" r="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+            <circle cx="145" cy="140" r="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+        </svg>
+        `;
+
+        // Interactive broom SVG with handle
+        const broomSVG = `
+        <svg id="interactive-broom" class="w-20 h-20 md:w-24 md:h-24 shake-hover cursor-pointer transition-all duration-300" viewBox="0 0 100 100" onclick="animateBroom()">
+            <line x1="20" y1="80" x2="70" y2="20" stroke="#b45309" stroke-width="8" stroke-linecap="round"/>
+            <path d="M10,90 Q15,75 35,75 L25,85 Z" fill="#fbbf24" stroke="#d97706" stroke-width="3"/>
+            <line x1="15" y1="88" x2="30" y2="78" stroke="#d97706" stroke-width="2"/>
+        </svg>
+        `;
+
+        // Interactive watering can
+        const wateringCanSVG = `
+        <svg id="interactive-can" class="w-20 h-20 md:w-24 md:h-24 shake-hover cursor-pointer transition-all duration-300" viewBox="0 0 100 100" onclick="animateWateringCan()">
+            <!-- Body -->
+            <rect x="30" y="40" width="40" height="30" rx="10" fill="#0ea5e9" stroke="#0369a1" stroke-width="3" />
+            <!-- Handle top -->
+            <path d="M35,40 Q50,25 65,40" fill="none" stroke="#0369a1" stroke-width="4" />
+            <!-- Handle side -->
+            <path d="M70,45 Q85,55 70,65" fill="none" stroke="#0369a1" stroke-width="4" />
+            <!-- Spout -->
+            <line x1="30" y1="55" x2="10" y2="45" stroke="#0369a1" stroke-width="5" stroke-linecap="round" />
+            <circle cx="10" cy="45" r="6" fill="#fbbf24" />
+        </svg>
+        `;
+
+        // Interactive trash bin
+        const trashBinSVG = `
+        <svg id="interactive-bin" class="w-20 h-20 md:w-24 md:h-24 shake-hover cursor-pointer transition-all duration-300" viewBox="0 0 100 100" onclick="animateTrashBin()">
+            <path d="M30,30 L70,30 L65,85 Q65,90 60,90 L40,90 Q35,90 35,85 Z" fill="#10b981" stroke="#047857" stroke-width="4" />
+            <!-- Recycling logo -->
+            <circle cx="50" cy="60" r="15" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="8 4" />
+            <path d="M50,20 L40,25 L60,25 Z" fill="#047857" />
+        </svg>
+        `;
+
+        // Interactive garden flower
+        const flowerSVG = `
+        <svg id="interactive-flower" class="w-14 h-14 md:w-16 md:h-16 transition-all duration-500" viewBox="0 0 100 100">
+            <!-- Stem -->
+            <line x1="50" y1="100" x2="50" y2="50" stroke="#22c55e" stroke-width="6" />
+            <path d="M50,80 Q30,70 45,65" fill="none" stroke="#22c55e" stroke-width="4" />
+            <!-- Petals -->
+            <circle cx="50" cy="35" r="12" fill="#f43f5e" />
+            <circle cx="35" cy="50" r="12" fill="#f43f5e" />
+            <circle cx="65" cy="50" r="12" fill="#f43f5e" />
+            <circle cx="50" cy="65" r="12" fill="#f43f5e" />
+            <!-- Center -->
+            <circle cx="50" cy="50" r="10" fill="#eab308" />
+        </svg>
+        `;
+    </script>
+
+    <script>
+        // State management
+        let currentSection = "menu"; // "menu", "materi", "kuis", "skor"
+        let currentMateriIndex = 0;
+        let quizCurrentIndex = 0;
+        let score = 0;
+
+        // Initialize highscore from LocalStorage
+        let highscore = localStorage.getItem("gotong_royong_score") ? parseInt(localStorage.getItem("gotong_royong_score")) : 0;
+        let highscoreDate = localStorage.getItem("gotong_royong_date") || "-";
+
+        // Help Modal toggle
+        function showHelp() {
+            document.getElementById("help-modal").classList.remove("hidden");
+            playSynthSound('pop');
+        }
+
+        function closeHelp() {
+            document.getElementById("help-modal").classList.add("hidden");
+            playSynthSound('pop');
+        }
+    </script>
+
+    <script>
+        // Slide Materi
+        const materiPages = [
+            {
+                title: "Arti Gotong Royong",
+                render: function() {
+                    return `
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div class="md:col-span-4 text-center">
+                            ${mascotSVG}
+                            <div class="mt-2 bg-sky-100 rounded-2xl p-2.5 border-2 border-sky-300">
+                                <span class="font-bold text-sky-700 text-sm">Riri berkata:</span>
+                                <p class="text-xs text-slate-700">"Gotong royong adalah bekerja bersama-sama!"</p>
+                            </div>
+                        </div>
+                        
+                        <div class="md:col-span-8 space-y-4">
+                            <span class="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full font-bold text-xs uppercase tracking-wider">Arti Gotong Royong</span>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">Apa itu Gotong Royong?</h3>
+                            
+                            <p class="text-slate-600 leading-relaxed text-sm md:text-base">
+                                Gotong royong artinya <b>bekerja bersama-sama</b> untuk mencapai tujuan yang baik. Semua orang saling membantu dengan hati yang tulus dan gembira!
+                            </p>
+
+                            <div class="bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 flex gap-4 items-center">
+                                <div class="text-3xl">❤️</div>
+                                <div>
+                                    <h4 class="font-bold text-amber-800 text-sm md:text-base">Kenapa sangat penting?</h4>
+                                    <p class="text-xs md:text-sm text-slate-600">Pekerjaan yang besar akan terasa ringan dan cepat selesai jika kita kerjakan bersama teman atau keluarga.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                },
+                narration: "Gotong royong artinya bekerja bersama-sama untuk mencapai tujuan yang baik. Semua orang saling membantu dengan tulus dan gembira! Pekerjaan berat jadi terasa cepat selesai."
+            },
+            {
+                title: "Gotong Royong di Rumah",
+                render: function() {
+                    return `
+                    <div class="space-y-4">
+                        <div class="text-center max-w-xl mx-auto">
+                            <span class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-xs uppercase tracking-wider">Lingkungan Rumah</span>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-2">Gotong Royong di Rumah</h3>
+                            <p class="text-xs md:text-sm text-slate-500">Ketuk benda-benda interaktif di bawah ini untuk melihat contoh gotong royong!</p>
+                        </div>
+
+                        <!-- Interactive Playground -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
+                            <!-- Sapu -->
+                            <div class="bg-amber-50 hover:bg-amber-100/80 transition-all border-2 border-amber-200 rounded-3xl p-4 flex flex-col items-center justify-between text-center group">
+                                ${broomSVG}
+                                <div class="mt-2">
+                                    <h4 class="font-bold text-amber-800 text-sm">Menyapu Lantai</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Membantu Ibu merapikan debu di rumah agar bersih.</p>
+                                </div>
+                            </div>
+
+                            <!-- Penyiram Air -->
+                            <div class="bg-sky-50 hover:bg-sky-100/80 transition-all border-2 border-sky-200 rounded-3xl p-4 flex flex-col items-center justify-between text-center group">
+                                <div class="flex items-center gap-1 justify-center">
+                                    ${wateringCanSVG}
+                                    ${flowerSVG}
+                                </div>
+                                <div class="mt-2">
+                                    <h4 class="font-bold text-sky-800 text-sm">Menyiram Bunga</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Bekerja sama dengan Ayah merawat kebun bunga kita.</p>
+                                </div>
+                            </div>
+
+                            <!-- Tong Sampah -->
+                            <div class="bg-emerald-50 hover:bg-emerald-100/80 transition-all border-2 border-emerald-200 rounded-3xl p-4 flex flex-col items-center justify-between text-center group">
+                                ${trashBinSVG}
+                                <div class="mt-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm">Membuang Sampah</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Memasukkan sampah ke tempatnya bersama adik.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                },
+                narration: "Di rumah, kita juga bisa bergotong royong! Ketuk alat menyapu, penyiram tanaman, atau tong sampah di layar untuk melihat contoh kerjasamanya."
+            },
+            {
+                title: "Gotong Royong di Sekolah",
+                render: function() {
+                    return `
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div class="md:col-span-7 space-y-4">
+                            <span class="bg-rose-100 text-rose-700 px-4 py-1.5 rounded-full font-bold text-xs uppercase tracking-wider">Lingkungan Sekolah</span>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">Piket Kelas Bersama Teman</h3>
+                            <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+                                Saat di sekolah, kita melakukan gotong royong dengan melakukan <b>piket kelas</b>. 
+                                Ada teman yang menyapu lantai, membersihkan meja, dan merapikan mainan.
+                            </p>
+
+                            <div class="bg-violet-50 rounded-3xl p-4 border border-violet-200">
+                                <h4 class="font-bold text-violet-800 text-sm mb-1">Manfaat Gotong Royong di Kelas:</h4>
+                                <ul class="list-disc pl-5 text-xs md:text-sm text-slate-600 space-y-1">
+                                    <li>Belajar menjadi bersih dan rapi bersama</li>
+                                    <li>Mempunyai banyak teman akrab</li>
+                                    <li>Suasana belajar menjadi sangat nyaman</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Illustrated School Classroom Scene -->
+                        <div class="md:col-span-5 bg-gradient-to-br from-indigo-100 to-sky-100 rounded-[32px] p-6 border-4 border-indigo-200 shadow-inner relative h-64 flex flex-col justify-end items-center overflow-hidden">
+                            <div class="absolute top-4 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-slate-800 rounded-lg border-2 border-amber-600 flex items-center justify-center shadow-md">
+                                <span class="text-white font-mono text-xs">Piket Kelas = Bersih ✨</span>
+                            </div>
+                            
+                            <div class="flex gap-4 items-end mb-4">
+                                <div class="animate-bounce" style="animation-delay: 0.2s">
+                                    <i class="fa-solid fa-user-group text-sky-600 text-4xl"></i>
+                                </div>
+                                <div class="animate-bounce" style="animation-delay: 0.5s">
+                                    <i class="fa-solid fa-broom text-amber-600 text-3xl"></i>
+                                </div>
+                                <div class="animate-bounce" style="animation-delay: 0.8s">
+                                    <i class="fa-solid fa-bucket text-teal-600 text-3xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                },
+                narration: "Di sekolah, kita melakukan gotong royong dengan piket kelas! Kita menyapu, membersihkan meja, dan merapikan mainan bersama teman agar kelas bersih."
+            },
+            {
+                title: "Gotong Royong di Masyarakat",
+                render: function() {
+                    return `
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div class="md:col-span-5 text-center order-2 md:order-1">
+                            <div class="bg-slate-50 border-4 border-emerald-300 rounded-[32px] p-6 shadow-lg inline-block relative overflow-hidden">
+                                <i class="fa-solid fa-house-chimney-window text-6xl text-emerald-500 animate-pulse"></i>
+                                <div class="flex gap-2 justify-center mt-4">
+                                    <i class="fa-solid fa-people-carry-box text-3xl text-amber-500 animate-bounce"></i>
+                                    <i class="fa-solid fa-trowel-bricks text-3xl text-slate-500"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-7 space-y-4 order-1 md:order-2">
+                            <span class="bg-amber-100 text-amber-700 px-4 py-1.5 rounded-full font-bold text-xs uppercase tracking-wider">Lingkungan Sekitar</span>
+                            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">Gotong Royong di Kampung</h3>
+                            <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+                                Warga di sekitar rumah kita juga saling bergotong royong. Mereka membersihkan selokan, menanam pohon di pinggir jalan, dan membangun pos ronda secara bersama-sama.
+                            </p>
+
+                            <div class="bg-slate-100 rounded-3xl p-4 border border-slate-300 text-xs md:text-sm text-slate-600">
+                                💡 <b>Ingat:</b> Membantu warga sekitar membuat lingkungan aman, sehat, dan bebas banjir!
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                },
+                narration: "Gotong royong juga dilakukan di lingkungan kampung. Para warga bekerja sama membersihkan selokan, menanam pohon, dan merapikan jalan agar lingkungan sehat."
+            }
+        ];
+    </script>
+
+    <script>
+        const quizQuestions = [
+            {
+                question: "Kerja bakti bersama-sama membersihkan rumah disebut apa?",
+                options: [
+                    { text: "Kerja Sendiri ❌", isCorrect: false },
+                    { text: "Gotong Royong ✅", isCorrect: true },
+                    { text: "Bermain Game ❌", isCorrect: false }
+                ],
+                emoji: "🏠"
+            },
+            {
+                question: "Siapa saja yang harus ikut bergotong royong merapikan rumah?",
+                options: [
+                    { text: "Semua Anggota Keluarga ✅", isCorrect: true },
+                    { text: "Ibu Saja ❌", isCorrect: false },
+                    { text: "Kakak Saja ❌", isCorrect: false }
+                ],
+                emoji: "👨‍👩‍👧‍👦"
+            },
+            {
+                question: "Pekerjaan yang berat jika dilakukan bersama-sama akan menjadi...",
+                options: [
+                    { text: "Semakin Berat ❌", isCorrect: false },
+                    { text: "Lama Selesai ❌", isCorrect: false },
+                    { text: "Lebih Ringan ✅", isCorrect: true }
+                ],
+                emoji: "🎈"
+            },
+            {
+                question: "Manakah contoh gotong royong yang ada di lingkungan sekolah?",
+                options: [
+                    { text: "Menonton TV ❌", isCorrect: false },
+                    { text: "Melakukan Piket Kelas ✅", isCorrect: true },
+                    { text: "Membeli Jajanan ❌", isCorrect: false }
+                ],
+                emoji: "🏫"
+            },
+            {
+                question: "Saat bergotong royong, hati kita harus merasa...",
+                options: [
+                    { text: "Sedih dan Marah ❌", isCorrect: false },
+                    { text: "Senang dan Gembira ✅", isCorrect: true },
+                    { text: "Malas Sekali ❌", isCorrect: false }
+                ],
+                emoji: "😆"
+            }
+        ];
+    </script>
+
+    <script>
+        function animateBroom() {
+            const broom = document.getElementById("interactive-broom");
+            broom.style.transform = "rotate(-25deg) translateY(-10px)";
+            playSynthSound('sweep');
+            showToast("Sret sret! Lantai rumah jadi bersih berkilau!", "success");
+            setTimeout(() => {
+                broom.style.transform = "rotate(0deg) translateY(0px)";
+            }, 500);
+        }
+
+        function animateWateringCan() {
+            const can = document.getElementById("interactive-can");
+            const flower = document.getElementById("interactive-flower");
+            can.style.transform = "rotate(-35deg) translateX(-15px)";
+            playSynthSound('water');
+            
+            flower.style.transform = "scale(1.2)";
+            showToast("Currr! Bunganya mekar segar gembira!", "success");
+            setTimeout(() => {
+                can.style.transform = "rotate(0deg) translateX(0px)";
+                flower.style.transform = "scale(1)";
+            }, 600);
+        }
+
+        function animateTrashBin() {
+            const bin = document.getElementById("interactive-bin");
+            bin.style.transform = "scale(1.1) rotate(5deg)";
+            playSynthSound('pop');
+            showToast("Pluk! Semua sampah masuk ke tempatnya!", "success");
+            setTimeout(() => {
+                bin.style.transform = "scale(1) rotate(0deg)";
+            }, 500);
+        }
+    </script>
+
+    <script>
+        // Navigation Router between sections
+        function changeSection(section) {
+            currentSection = section;
+            stopNarration();
+            playSynthSound('pop');
+
+            const subTitle = document.getElementById("sub-title");
+            const navFooter = document.getElementById("navigation-footer");
+
+            if (section === "menu") {
+                subTitle.innerText = "Kelas 1 SD • Pembelajaran Seru";
+                navFooter.classList.add("hidden");
+                renderMainMenu();
+            } else if (section === "materi") {
+                subTitle.innerText = "Materi Gotong Royong";
+                navFooter.classList.remove("hidden");
+                currentMateriIndex = 0;
+                renderMateriPage();
+            } else if (section === "kuis") {
+                subTitle.innerText = "Kuis Pintar";
+                navFooter.classList.add("hidden");
+                quizCurrentIndex = 0;
+                score = 0;
+                renderQuizPage();
+            } else if (section === "skor") {
+                subTitle.innerText = "Papan Prestasi";
+                navFooter.classList.add("hidden");
+                renderSkorPage();
+            }
+        }
+
+        // Narrates depending on the section active
+        function narrateCurrentScreen() {
+            if (isMuted) return;
+            if (currentSection === "menu") {
+                playNarration("Selamat datang di Petualangan Gotong Royong! Pilih belajar materi, main kuis pintar, atau lihat skor tertinggimu!");
+            } else if (currentSection === "materi") {
+                const activeMateri = materiPages[currentMateriIndex];
+                if (activeMateri && activeMateri.narration) {
+                    playNarration(activeMateri.narration);
+                }
+            } else if (currentSection === "kuis") {
+                const activeQuestion = quizQuestions[quizCurrentIndex];
+                if (activeQuestion) {
+                    playNarration(`Pertanyaan nomor ${quizCurrentIndex + 1}. ${activeQuestion.question}`);
+                }
+            } else if (currentSection === "skor") {
+                playNarration(`Ini adalah halaman prestasimu. Skor tertinggi kamu adalah ${highscore} poin.`);
+            }
+        }
+    </script>
+
+    <script>
+        // MAIN MENU UI RENDERER
+        function renderMainMenu() {
+            const screen = document.getElementById("screen-container");
+            screen.innerHTML = `
+            <div class="text-center py-4 space-y-4">
+                <div class="mb-2">
+                    ${mascotSVG}
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-sky-800 leading-tight">
+                    Mari Belajar <br><span class="text-amber-500">Gotong Royong!</span>
+                </h2>
+                <p class="text-slate-600 text-sm md:text-base max-w-md mx-auto leading-relaxed">
+                    Pilih salah satu petualangan seru di bawah ini bersama Kak Riri!
+                </p>
+
+                <!-- Menu Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto pt-4">
+                    <!-- Menu 1: Belajar Materi -->
+                    <button onclick="changeSection('materi')" class="bg-sky-100 hover:bg-sky-200 border-4 border-sky-300 hover:border-sky-400 p-5 rounded-[24px] text-center shadow-md active:scale-95 transition-all flex flex-col items-center justify-center gap-2 group">
+                        <div class="bg-sky-400 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-book-open-reader"></i>
+                        </div>
+                        <h4 class="font-extrabold text-sky-800 text-base md:text-lg">Belajar Materi</h4>
+                        <p class="text-xs text-sky-600 font-semibold">Belajar seru bersama cerita gotong royong</p>
+                    </button>
+
+                    <!-- Menu 2: Kuis Pintar -->
+                    <button onclick="changeSection('kuis')" class="bg-amber-100 hover:bg-amber-200 border-4 border-amber-300 hover:border-amber-400 p-5 rounded-[24px] text-center shadow-md active:scale-95 transition-all flex flex-col items-center justify-center gap-2 group">
+                        <div class="bg-amber-400 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-gamepad"></i>
+                        </div>
+                        <h4 class="font-extrabold text-amber-800 text-base md:text-lg">Kuis Pintar</h4>
+                        <p class="text-xs text-amber-600 font-semibold">Uji kehebatanmu menjawab kuis</p>
+                    </button>
+
+                    <!-- Menu 3: Papan Skor -->
+                    <button onclick="changeSection('skor')" class="bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-300 hover:border-emerald-400 p-5 rounded-[24px] text-center shadow-md active:scale-95 transition-all flex flex-col items-center justify-center gap-2 group">
+                        <div class="bg-emerald-400 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <h4 class="font-extrabold text-emerald-800 text-base md:text-lg">Skor & Prestasi</h4>
+                        <p class="text-xs text-emerald-600 font-semibold">Lihat piala dan nilai tertinggi milikmu</p>
+                    </button>
+                </div>
+            </div>
+            `;
+            setTimeout(() => {
+                narrateCurrentScreen();
+            }, 300);
+        }
+    </script>
+
+    <script>
+        // MATERI SECTION RENDERER
+        function renderMateriPage() {
+            const screen = document.getElementById("screen-container");
+            const activePage = materiPages[currentMateriIndex];
+
+            screen.innerHTML = activePage.render();
+            updateMateriNav();
+
+            setTimeout(() => {
+                narrateCurrentScreen();
+            }, 300);
+        }
+
+        function updateMateriNav() {
+            const btnBack = document.getElementById("btn-back");
+            const btnNext = document.getElementById("btn-next");
+            const dotsContainer = document.getElementById("progress-dots");
+
+            // Back button toggles
+            if (currentMateriIndex === 0) {
+                btnBack.innerHTML = `<i class="fa-solid fa-house"></i> Menu Utama`;
+                btnBack.onclick = function() { changeSection('menu'); };
+            } else {
+                btnBack.innerHTML = `<i class="fa-solid fa-arrow-left"></i> Kembali`;
+                btnBack.onclick = function() { goBack(); };
+            }
+
+            // Next button toggles
+            if (currentMateriIndex === materiPages.length - 1) {
+                btnNext.innerHTML = `Main Kuis <i class="fa-solid fa-gamepad"></i>`;
+                btnNext.onclick = function() { changeSection('kuis'); };
+            } else {
+                btnNext.innerHTML = `Lanjut <i class="fa-solid fa-arrow-right"></i>`;
+                btnNext.onclick = function() { goNext(); };
+            }
+
+            // Dots update
+            dotsContainer.innerHTML = materiPages.map((_, idx) => `
+                <div class="w-3.5 h-3.5 rounded-full transition-all duration-300 ${idx === currentMateriIndex ? 'bg-sky-500 scale-125' : 'bg-sky-200'}"></div>
+            `).join('');
+        }
+
+        function goNext() {
+            if (currentSection === "materi" && currentMateriIndex < materiPages.length - 1) {
+                currentMateriIndex++;
+                renderMateriPage();
+                playSynthSound('pop');
+            }
+        }
+
+        function goBack() {
+            if (currentSection === "materi" && currentMateriIndex > 0) {
+                currentMateriIndex--;
+                renderMateriPage();
+                playSynthSound('pop');
+            }
+        }
+    </script>
+
+    <script>
+        // QUIZ SECTION RENDERER
+        function renderQuizPage() {
+            const screen = document.getElementById("screen-container");
+            const q = quizQuestions[quizCurrentIndex];
+
+            const percent = (quizCurrentIndex / quizQuestions.length) * 100;
+
+            screen.innerHTML = `
+            <div class="space-y-4">
+                <!-- Quiz Progress header -->
+                <div class="flex items-center justify-between text-sm font-bold text-sky-700">
+                    <button onclick="confirmExitQuiz()" class="text-rose-500 hover:text-rose-600 flex items-center gap-1.5 active:scale-95 transition-all text-xs">
+                        <i class="fa-solid fa-circle-xmark text-sm"></i> Keluar Kuis
+                    </button>
+                    <span>Soal Kuis ${quizCurrentIndex + 1} dari ${quizQuestions.length}</span>
+                    <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs">Skor: ${score}</span>
+                </div>
+                
+                <!-- Progress Line -->
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                    <div class="bg-emerald-400 h-full transition-all duration-300" style="width: ${percent}%"></div>
+                </div>
+
+                <!-- Card Question Content -->
+                <div class="bg-sky-50 rounded-[28px] p-6 border-2 border-sky-200 shadow-md text-center">
+                    <div class="text-5xl mb-2 animate-bounce">${q.emoji}</div>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+                        ${q.question}
+                    </h3>
+                </div>
+
+                <!-- Answer options layout -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                    ${q.options.map((opt, idx) => `
+                        <button onclick="submitAnswer(${idx})" class="p-4 bg-white hover:bg-sky-100 text-sky-900 border-2 border-sky-200 hover:border-sky-400 rounded-2xl font-bold text-sm md:text-base text-center transition-all shadow-sm active:scale-95 duration-200 flex items-center justify-center min-h-[64px]">
+                            ${opt.text}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+            `;
+
+            setTimeout(() => {
+                narrateCurrentScreen();
+            }, 300);
+        }
+
+        // Exit confirmation helper using custom toast rather than native alerts
+        function confirmExitQuiz() {
+            if (confirm("Apakah kamu ingin mengakhiri kuis dan kembali ke Menu Utama?")) {
+                changeSection('menu');
+            }
+        }
+
+        function submitAnswer(optionIndex) {
+            const q = quizQuestions[quizCurrentIndex];
+            const isCorrect = q.options[optionIndex].isCorrect;
+
+            if (isCorrect) {
+                score += 20;
+                playSynthSound('success');
+                showToast("Hebat! Jawabanmu betul sekali!", "success");
+            } else {
+                playSynthSound('wrong');
+                showToast("Waduh, belum tepat. Ayo coba lagi!", "error");
+            }
+
+            setTimeout(() => {
+                if (quizCurrentIndex < quizQuestions.length - 1) {
+                    quizCurrentIndex++;
+                    renderQuizPage();
+                } else {
+                    saveAndShowResults();
+                }
+            }, 1200);
+        }
+    </script>
+
+    <script>
+        function saveAndShowResults() {
+            stopNarration();
+            
+            // Check for highscore update
+            let isNewRecord = false;
+            if (score > highscore) {
+                highscore = score;
+                isNewRecord = true;
+                const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                highscoreDate = dateStr;
+                localStorage.setItem("gotong_royong_score", highscore);
+                localStorage.setItem("gotong_royong_date", dateStr);
+            }
+
+            const screen = document.getElementById("screen-container");
+            
+            let stars = "⭐";
+            let remark = "Ayo Belajar Lagi!";
+            if (score >= 80) {
+                stars = "⭐⭐⭐";
+                remark = "Sangat Hebat! Juara Gotong Royong!";
+            } else if (score >= 60) {
+                stars = "⭐⭐";
+                remark = "Hebat! Kamu Anak Baik Suka Membantu!";
+            }
+
+            screen.innerHTML = `
+            <div class="text-center py-4 space-y-4">
+                <div class="text-yellow-400 text-5xl tracking-widest animate-pulse">${stars}</div>
+                <h3 class="text-3xl font-extrabold text-slate-800">Kuis Selesai!</h3>
+                
+                <div class="bg-gradient-to-tr from-amber-50 to-orange-100 rounded-[32px] p-6 border-4 border-amber-300 max-w-lg mx-auto shadow-lg relative">
+                    <div class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full text-xs px-3 py-1 font-bold shadow-md">
+                        KARTU PRESTASI
+                    </div>
+                    <p class="text-sm text-slate-500 uppercase tracking-widest">Penghargaan Diberikan Kepada</p>
+                    <h4 class="text-2xl font-black text-amber-900 my-1 font-kids">Anak Hebat Suka Membantu</h4>
+                    <p class="text-xs text-amber-700 font-semibold mb-3">Telah Mengikuti Petualangan Gotong Royong Kelas 1 SD</p>
+                    
+                    <div class="bg-white/80 rounded-2xl py-3 px-6 inline-block border-2 border-amber-200">
+                        <span class="text-xs text-slate-500 font-bold">NILAI AKHIR</span>
+                        <div class="text-4xl font-extrabold text-emerald-600">${score} / 100</div>
+                    </div>
+
+                    <p class="text-sm text-slate-700 italic mt-3 font-semibold">"${remark}"</p>
+                    ${isNewRecord ? `<div class="mt-2 text-xs font-bold text-rose-500 animate-bounce">🏆 Rekor Skor Tertinggi Baru! 🏆</div>` : ''}
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <button onclick="changeSection('kuis')" class="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition-all active:scale-95 text-sm">
+                        <i class="fa-solid fa-rotate-left"></i> Ulangi Kuis
+                    </button>
+                    <button onclick="changeSection('menu')" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-md transition-all active:scale-95 text-sm">
+                        <i class="fa-solid fa-home"></i> Menu Utama
+                    </button>
+                </div>
+            </div>
+            `;
+
+            playNarration(`Selamat! Kamu mendapatkan skor ${score} dari seratus. ${remark}`);
+        }
+    </script>
+
+    <script>
+        // SKOR & PRESTASI SECTION RENDERER
+        function renderSkorPage() {
+            const screen = document.getElementById("screen-container");
+
+            let levelTrophy = `<i class="fa-solid fa-medal text-slate-400 text-8xl"></i>`;
+            let levelBadge = "Belum Ada Lencana";
+            let descBadge = "Ayo selesaikan Kuis Pintar untuk mendapatkan Lencana Pertamamu!";
+
+            if (highscore === 100) {
+                levelTrophy = `<i class="fa-solid fa-trophy text-amber-400 text-8xl animate-bounce"></i>`;
+                levelBadge = "Lencana Bintang Emas 🥇";
+                descBadge = "Nilai Sempurna! Kamu adalah Pejuang Gotong Royong Sejati!";
+            } else if (highscore >= 80) {
+                levelTrophy = `<i class="fa-solid fa-award text-yellow-400 text-8xl"></i>`;
+                levelBadge = "Lencana Bintang Perak 🥈";
+                descBadge = "Hebat Sekali! Kamu sangat paham cara bekerja sama!";
+            } else if (highscore >= 60) {
+                levelTrophy = `<i class="fa-solid fa-medal text-amber-600 text-8xl"></i>`;
+                levelBadge = "Lencana Bintang Perunggu 🥉";
+                descBadge = "Kamu mengerti pentingnya membantu sesama. Keren!";
+            } else if (highscore > 0) {
+                levelTrophy = `<i class="fa-solid fa-circle-check text-sky-400 text-8xl"></i>`;
+                levelBadge = "Lencana Pemula Suka Membantu";
+                descBadge = "Terus tingkatkan belajarmu agar dapat Lencana yang lebih tinggi!";
+            }
+
+            screen.innerHTML = `
+            <div class="text-center py-4 space-y-5 max-w-xl mx-auto">
+                <span class="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full font-bold text-xs uppercase tracking-wider">Ruang Penghargaan</span>
+                
+                <div class="flex justify-center py-2">
+                    ${levelTrophy}
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-black text-slate-800">${levelBadge}</h3>
+                    <p class="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">${descBadge}</p>
+                </div>
+
+                <!-- Display Box -->
+                <div class="bg-sky-50 rounded-3xl p-5 border-2 border-sky-100 grid grid-cols-2 gap-4">
+                    <div class="border-r border-sky-200">
+                        <span class="text-xs font-bold text-sky-500">SKOR TERTINGGI</span>
+                        <h4 class="text-3xl font-black text-sky-800 mt-1">${highscore}</h4>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-sky-500">TANGGAL REKOR</span>
+                        <h4 class="text-sm font-bold text-slate-600 mt-2">${highscoreDate}</h4>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex flex-wrap justify-center gap-3 pt-2">
+                    <button onclick="resetScore()" class="px-5 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-600 font-bold rounded-2xl transition-all text-xs active:scale-95">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Skor Saya
+                    </button>
+                    <button onclick="changeSection('menu')" class="px-6 py-3 bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-md transition-all text-sm active:scale-95">
+                        <i class="fa-solid fa-house"></i> Menu Utama
+                    </button>
+                </div>
+            </div>
+            `;
+
+            setTimeout(() => {
+                narrateCurrentScreen();
+            }, 300);
+        }
+
+        // Score reset helper
+        function resetScore() {
+            if (confirm("Apakah kamu yakin ingin menghapus skor tertinggi kamu? Data penghargaanmu akan diulang dari awal.")) {
+                localStorage.removeItem("gotong_royong_score");
+                localStorage.removeItem("gotong_royong_date");
+                highscore = 0;
+                highscoreDate = "-";
+                showToast("Data skormu telah dihapus!", "success");
+                renderSkorPage();
+            }
+        }
+    </script>
+
+    <script>
+        // Window Onload execution triggers
+        window.onload = function() {
+            // Initiate app into Main Menu representation
+            renderMainMenu();
+        };
+    </script>
+</body>
+</html>
